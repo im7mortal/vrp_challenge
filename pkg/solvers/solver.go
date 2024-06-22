@@ -1,6 +1,7 @@
 package solvers
 
 import (
+	"fmt"
 	"math"
 )
 
@@ -46,11 +47,29 @@ func TotalDistance(route []int, vectors []Vector) float64 {
 
 }
 
+func pythonStyleArrayPrint(i []int) string {
+	ss := "["
+	for g, d := range i {
+		if g != 0 {
+			ss += ", "
+		}
+		ss += fmt.Sprintf("'%d'", d+1)
+	}
+
+	return ss + "]"
+}
+
 // Cost calculates the cost of the solution
 func Cost(routes [][]int, vectors []Vector) float64 {
 	totalDistance := 0.
 	for _, route := range routes {
+
+		//fmt.Printf("%s\n", pythonStyleArrayPrint(route))
+		//fmt.Printf("%.12f\n", TotalDistance(route, vectors))
+
 		totalDistance += TotalDistance(route, vectors)
 	}
+	//println(RouteCostMultiplier * float64(len(routes)))
+	//println(totalDistance)
 	return RouteCostMultiplier*float64(len(routes)) + totalDistance
 }
