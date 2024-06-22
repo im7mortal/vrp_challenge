@@ -1,63 +1,63 @@
 package main
 
 import (
-	"encoding/csv"
 	"fmt"
 	"github.com/golang/glog"
+	"github.com/spf13/cobra"
 	"os"
 	"vorto/vpr/pkg/solvers"
+	"vorto/vpr/pkg/solvers/utils"
 )
 
-func main() {
+const debug = 9
 
-	file, err := os.Open(os.Args[1])
-	if err != nil {
-		glog.Errorf("Error opening file: %i", err)
-		os.Exit(1)
-	}
-	defer file.Close()
+var rootCmd = &cobra.Command{
+	Use:   "solver [ARGUMENT]",
+	Short: "VRP solver",
+	Long:  `VRP solver finds optimal amount of drivers and routes to deliver all goods with minimal costs `,
 
-	reader := csv.NewReader(file)
-	reader.Comma = ' '
+	Args: cobra.MinimumNArgs(1),
 
-	values, err := reader.ReadAll()
-
-	if err != nil {
-		glog.Errorf("Error parsing csv: %i", err)
-		os.Exit(1)
-	}
-	values = values[1:]
-
-	f := make([][4]float64, len(values))
-
-	for i := range values {
-		if len(values[i]) != 3 {
-			glog.Errorf("Error parsing csv: %i", values[i])
-			os.Exit(1)
-		}
-		_, err = fmt.Sscanf(values[i][1], "(%f,%f)", &(f[i][0]), &(f[i][1]))
+	Run: func(cmd *cobra.Command, args []string) {
+		points, err := utils.Parse(os.Args[1])
 		if err != nil {
-			glog.Errorf("Error parsing csv: %i", err)
+			if glog.V(debug) {
+				glog.Exit(err)
+			}
 			os.Exit(1)
 		}
-		_, err = fmt.Sscanf(values[i][1], "(%f,%f)", &(f[i][2]), &(f[i][3]))
-		if err != nil {
-			glog.Errorf("Error parsing csv: %i", err)
-			os.Exit(1)
-		}
-		//fmt.Printf("[%d]\n", i+1)
-	}
-	sol := solvers.Solve1(f)
+		sol := solvers.NewNearestNeighbor(points)
+		printToFormat(sol.Solve())
+	},
+}
 
-	for _, entrance := range sol {
-		fmt.Print("[")
+func printToFormat(results [][]int) {
+	for _, entrance := range results {
+		s := "["
 		for i, e := range entrance {
 			if i > 0 {
-				fmt.Print(", ")
+				s += ", "
 			}
-			fmt.Print(e)
+			// '+1' because the numeration of the routes doesn't include 0
+			s += fmt.Sprintf("%d", e+1)
 		}
-		fmt.Println("]")
+		fmt.Println(s + "]")
 	}
+}
 
+func main() {
+	defer func() {
+		if r := recover(); r != nil {
+			if glog.V(debug) {
+				glog.Exitf("Recovered from", r)
+			}
+			os.Exit(1)
+		}
+	}()
+	if err := rootCmd.Execute(); err != nil {
+		if glog.V(debug) {
+			glog.Exit(err)
+		}
+		os.Exit(1)
+	}
 }
