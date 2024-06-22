@@ -41,7 +41,8 @@ func TotalDistance(route []int, vectors []Vector) float64 {
 		localOrigin = vectors[index].End
 		totalDistance += Distance(vectors[index].Start, vectors[index].End)
 	}
-	return totalDistance + Distance(vectors[len(vectors)-1].End, origin)
+	totalDistance += Distance(vectors[route[len(route)-1]].End, origin)
+	return totalDistance
 
 }
 
