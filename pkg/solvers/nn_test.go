@@ -18,13 +18,15 @@ const (
 var targetBaseline = BaselinePetrFirstIteration
 
 func TestSolver(t *testing.T) {
-	vectors, err := utils.Parse("../../problems/problem16.txt")
+	vectors, err := utils.Parse("../../problems/problem17.txt")
 	if err != nil {
 		t.Errorf(err.Error())
 	}
 
 	nn := solvers.NewNearestNeighbor(vectors)
 	routes := nn.Solve()
+
+	fmt.Printf("%v\n", routes)
 
 	for _, route := range routes {
 		if d := solvers.TotalDistance(route, vectors); d > solvers.RouteMaxShiftMinutes {

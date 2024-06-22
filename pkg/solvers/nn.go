@@ -1,6 +1,8 @@
 package solvers
 
 import (
+	"fmt"
+	"github.com/golang/glog"
 	"math"
 )
 
@@ -22,6 +24,7 @@ func NewNearestNeighbor(vectors []Vector) Solver {
 	for i := range vectors {
 		nn.precomputeToOrigin[i] = Distance(nn.vectors[i].End, origin)
 		nn.precomputeDistance[i] = Distance(nn.vectors[i].Start, nn.vectors[i].End)
+		//fmt.Printf("%.2f\t%.2f\n", nn.precomputeDistance[i], nn.precomputeToOrigin[i])
 	}
 	return nn
 }
@@ -50,11 +53,24 @@ func (nn *nearestNeighbor) Solve() (solution [][]int) {
 
 		for {
 			nearestIndex, distToNearest := nn.findNearestVector(current)
-			if nearestIndex == -1 || totalDistance+distToNearest+nn.precomputeToOrigin[nearestIndex] > RouteMaxShiftMinutes {
+
+			//if nearestIndex != -1 {
+			//	if glog.V(1) {
+			//		d := totalDistance + distToNearest + nn.precomputeDistance[nearestIndex] + nn.precomputeToOrigin[nearestIndex]
+			//		fmt.Printf("%.2f\t%.2f\t%t\t \n", d, d, d > RouteMaxShiftMinutes)
+			//	}
+			//}
+			if nearestIndex == -1 || totalDistance+distToNearest+nn.precomputeDistance[nearestIndex]+nn.precomputeToOrigin[nearestIndex] > RouteMaxShiftMinutes {
 				break
 			}
+
 			nearestVector := nn.vectors[nearestIndex]
-			totalDistance += distToNearest + Distance(nearestVector.Start, nearestVector.End)
+			totalDistance += distToNearest + nn.precomputeDistance[nearestIndex]
+
+			if glog.V(debugLvl) {
+				fmt.Printf("%.2f\t%.2f\t%.2f\t \n", distToNearest, nn.precomputeDistance[nearestIndex], totalDistance)
+			}
+
 			current = nearestVector.End
 			route = append(route, nearestIndex)
 			nn.visited[nearestIndex] = true
