@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
 	"github.com/golang/glog"
 	"github.com/spf13/cobra"
@@ -27,7 +28,11 @@ var rootCmd = &cobra.Command{
 			os.Exit(1)
 		}
 		sol := solvers.NewNearestNeighbor(points)
-		printToFormat(sol.Solve())
+		s := sol.Solve()
+		printToFormat(s)
+		return
+		writeRowsToFile("out.txt", []string{fmt.Sprintf("%f", solvers.Cost(s, points))})
+
 	},
 }
 
@@ -60,4 +65,19 @@ func main() {
 		}
 		os.Exit(1)
 	}
+}
+
+func writeRowsToFile(filename string, rows []string) error {
+	file, err := os.Create(filename)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	writer := bufio.NewWriter(file)
+	for _, row := range rows {
+		fmt.Fprintln(writer, row)
+	}
+
+	return writer.Flush()
 }
