@@ -2,10 +2,20 @@ package solvers_test
 
 import (
 	"fmt"
+	"os"
 	"testing"
+	"time"
 	"vorto/vpr/pkg/solvers"
 	"vorto/vpr/pkg/solvers/utils"
 )
+
+func init() {
+	// there is high probability that during development we stack in infinite loop
+	// if we use all cores then it can parallelize UI; I have Ubuntu and it happened with me many times
+	time.AfterFunc(30*time.Second, func() {
+		os.Exit(0)
+	})
+}
 
 // !!!
 // !!! these values are only for rush developing as in real scenario we use the MEAN baseline

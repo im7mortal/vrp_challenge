@@ -5,9 +5,18 @@ import (
 	"github.com/golang/glog"
 	"github.com/spf13/cobra"
 	"os"
+	"time"
 	"vorto/vpr/pkg/solvers"
 	"vorto/vpr/pkg/solvers/utils"
 )
+
+// there is high probability that during development we stack in infinite loop
+// if we use all cores then it can parallelize UI; I have Ubuntu and it happened with me many times
+func init() {
+	time.AfterFunc(30*time.Second, func() {
+		os.Exit(1)
+	})
+}
 
 const debug = 9
 
