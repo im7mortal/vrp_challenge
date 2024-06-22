@@ -60,7 +60,7 @@ func Parse(filepath string) ([]solvers.Vector, error) {
 			}
 			return nil, err
 		}
-		_, err = fmt.Sscanf(values[i][1], "(%f,%f)", &vectors[i].End.X, &vectors[i].End.Y)
+		_, err = fmt.Sscanf(values[i][2], "(%f,%f)", &vectors[i].End.X, &vectors[i].End.Y)
 		if err != nil {
 			if glog.V(errorLvl) {
 				glog.Error(err)
