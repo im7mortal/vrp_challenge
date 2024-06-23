@@ -2,9 +2,9 @@ package solvers
 
 import (
 	"context"
+	"fmt"
 	"github.com/golang/glog"
 	"math"
-	"os"
 )
 
 type parallel struct {
@@ -23,6 +23,7 @@ func NewParallel(vectors []*Vector, evaluatorFuncs []Evaluator, N int) Solver {
 type jobResult struct {
 	result [][]int
 	err    error
+	index  int
 }
 
 func createJobFromFuncOut(result [][]int, err error) jobResult {
@@ -35,18 +36,26 @@ func createJobFromFuncOut(result [][]int, err error) jobResult {
 func (pl *parallel) Solve(ctx context.Context) ([][]int, error) {
 
 	resultChan := make(chan jobResult)
+	counter := 0
 	for i := 0; i < pl.N; i++ {
 		for funcIndex := range pl.evaluatorFuncs {
-			go func(slv Solver) {
-				if r := recover(); r != nil {
-					if glog.V(errorLvl) {
-						glog.Exitf("Recovered from", r)
+			go func(n, fIndex int) {
+				j := jobResult{index: n}
+				defer func() {
+					if r := recover(); r != nil {
+						j.err = fmt.Errorf("Recovered from %s", r)
+						if glog.V(errorLvl) {
+							glog.Error(j.err)
+						}
+						// correctly finish the program
+						resultChan <- j
 					}
-					// correctly finish the program
-					os.Exit(1)
-				}
-				resultChan <- createJobFromFuncOut(slv.Solve(ctx))
-			}(NewNearestNeighborExp(pl.vectors, pl.evaluatorFuncs[funcIndex], i+1))
+				}()
+				slv := NewNearestNeighborExp(pl.vectors, pl.evaluatorFuncs[funcIndex], n)
+				j.result, j.err = slv.Solve(ctx)
+				resultChan <- j
+			}(i+1, funcIndex)
+			counter++
 		}
 	}
 	var results []jobResult
@@ -58,7 +67,9 @@ func (pl *parallel) Solve(ctx context.Context) ([][]int, error) {
 		select {
 		case job := <-resultChan:
 			results = append(results, job)
-			if len(results) == pl.N {
+			// TODO I don't like counter pattern
+			counter--
+			if counter == 0 {
 				finished = true
 			}
 		case <-ctx.Done():
