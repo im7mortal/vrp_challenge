@@ -13,7 +13,9 @@ The fastest way to run it. Is use [Dockerfile](Dockerfile).
  docker run vpr:latest
 ```
 
-The directory must contain the problems directory and evaluateShared.py. You can set them in build arguments `dir` and `pyScript` accordingly.
+Or run [run.sh](run.sh)
+
+The directory **must contain** `the problems directory` and `evaluateShared.py`. You can set them in build arguments `dir` and `pyScript` accordingly.
 Default values 
 
 ```dockerfile
@@ -31,7 +33,7 @@ go build .
 
 The original intent was to implement the A* or smt similar. However, I started with the Nearest Neighbor algorithm.
 
-This allowed achieving a mean cost of 52041.86997702847 and an average runtime of 4.130744934082031ms. In the next iteration, I decided to tune it with some versions N recursive brute force Salesman algorithm.
+This allowed achieving a mean cost of **52041.86997702847** and an average runtime of **4.130744934082031ms**. In the next iteration, I decided to tune it with some versions N recursive brute force Salesman algorithm.
 
 This resulted in a slight improvement in the mean cost, down to 49508.511593292424, but a significant increase in runtime to 8068.529975414276ms. I figured out that some test cases contained a multitude of small vectors close to the depot (especially problems 5 and 6). What caused very deep recursions and consequently, longer runtimes.
 
@@ -50,3 +52,7 @@ See [performance](PERFORMANCE_LOG.md) for details.
 ## Code
 
 I am trying to demonstrate proficiency in GoLang and in general programming.
+
+Most golish part is this [clumsy code](https://github.com/im7mortal/vrp_challenge/blob/0f8ef3a515d5668c157e8b1731f31d6a844bd8bc/pkg/solvers/parrallel.go#L45-L119). As I mentioned in the Algorithm part. Some test cases can proceed for less than 1ms with N=1 and 150 seconds for N=3.
+    We start all tasks in the same time in different gorutines. I decided do not implement process limiter as it's 9 gorutines maximum for current implementation and 3 of them finish almost immediately.
+    What matters , it's to intercept the test cases significant amount of time and cancel them immediately. Following logic handle it.
