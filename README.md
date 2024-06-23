@@ -5,6 +5,19 @@ To run follow run sections. Algorith explained in the Algorith section.
 ## Run
 
 The fastest way to run it. Is use [Dockerfile](Dockerfile). 
+```shell
+ docker build --build-arg dir="Training Problems" --build-arg pyScript="evaluateShared.py" -t vpr:latest .
+ docker run vpr:latest
+```
+
+The directory must contain the problems directory and evaluateShared.py. You can set them in build arguments `dir` and `pyScript` accordingly.
+Default values 
+
+```dockerfile
+ARG dir="Training Problems"
+ARG pyScript="evaluateShared.py"
+```
+
 
 Alternatively, you can compile the Go binary for your operating system using the command:
 ```shell

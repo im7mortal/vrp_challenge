@@ -17,10 +17,13 @@ FROM registry.hub.docker.com/library/python:3.12.4-bookworm
 
 WORKDIR /solver
 
-COPY problems problems
-COPY evaluateShared.py evaluateShared.py
+ARG dir="Training Problems"
+ARG pyScript="evaluateShared.py"
+
+COPY ${dir} problems
+COPY ${pyScript} run.py
 COPY --from=build /go/bin/vpr solver
 
-CMD ["python3", "evaluateShared.py", "--cmd" , "/solver/solver", "--problemDir", "problems"]
+CMD ["python3", "run.py", "--cmd" , "/solver/solver", "--problemDir", "problems"]
 
 
