@@ -36,17 +36,18 @@ func (pl *parallel) Solve(ctx context.Context) ([][]int, error) {
 
 	resultChan := make(chan jobResult)
 	for i := 0; i < pl.N; i++ {
-		go func(slv Solver) {
-			if r := recover(); r != nil {
-				if glog.V(errorLvl) {
-					glog.Exitf("Recovered from", r)
+		for funcIndex := range pl.evaluatorFuncs {
+			go func(slv Solver) {
+				if r := recover(); r != nil {
+					if glog.V(errorLvl) {
+						glog.Exitf("Recovered from", r)
+					}
+					// correctly finish the program
+					os.Exit(1)
 				}
-				// correctly finish the program
-				os.Exit(1)
-			}
-
-			resultChan <- createJobFromFuncOut(slv.Solve(ctx))
-		}(NewNearestNeighborExp(pl.vectors, pl.evaluatorFuncs[0], i+1))
+				resultChan <- createJobFromFuncOut(slv.Solve(ctx))
+			}(NewNearestNeighborExp(pl.vectors, pl.evaluatorFuncs[funcIndex], i+1))
+		}
 	}
 	var results []jobResult
 	finished := false
