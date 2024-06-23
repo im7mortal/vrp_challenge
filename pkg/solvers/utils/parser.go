@@ -74,6 +74,7 @@ func Parse(filepath string) ([]*solvers.Vector, error) {
 			return nil, err
 		}
 	}
+	//fmt.Printf("%v\n", solvers.Vectors(vectors))
 	return vectors, nil
 }
 

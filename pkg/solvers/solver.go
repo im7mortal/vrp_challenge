@@ -20,8 +20,27 @@ type Point struct {
 	X, Y float64
 }
 
+func (p Point) String() string {
+	return fmt.Sprintf("Point{X: %v, Y:%v}", p.X, p.Y)
+}
+
+type Vectors []*Vector
+
+func (vs Vectors) String() string {
+	s := "[]Vector{\n"
+	for _, v := range vs {
+		// add newline character to each line.
+		s += fmt.Sprintf("%v,\n", v)
+	}
+	return s + "}"
+}
+
 type Vector struct {
 	Start, End Point
+}
+
+func (v Vector) String() string {
+	return fmt.Sprintf("Vector{Start:%v, End:%v}", v.Start, v.End)
 }
 
 func Distance(p1, p2 Point) float64 {
