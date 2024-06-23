@@ -39,13 +39,12 @@ So I decided to apply following KNOWHOW : If the algorithm's execution exceeded 
 
 Currently, further improvements are being pursued through experimentation with the Random Evaluation function.
 
-
+See [performance](PERFORMANCE_LOG.md) for details.
 ```
 // 1 52041.86997702847 <-- NEAREST NEIGHBOR
 // 2 49628.99589848467
 // 3 49324.77775315616
-// 4 49384.56281527733
-// 5 49408.26447408905
+...
 ```
 
 ## Code
