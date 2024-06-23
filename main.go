@@ -50,7 +50,9 @@ var rootCmd = &cobra.Command{
 		}
 
 		ctx, _ := context.WithTimeout(context.Background(), mustFinishAll)
-		sol := solvers.NewParallel(vectors, []solvers.Evaluator{solvers.GetTheBestByLengthAndCost}, 5)
+		sol := solvers.NewParallel(vectors, []solvers.Evaluator{
+			solvers.GetTheBestByLengthAndCost(vectors),
+		}, 5)
 
 		result, err := sol.Solve(ctx)
 		if r := recover(); r != nil {

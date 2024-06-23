@@ -34,7 +34,7 @@ type Solver interface {
 	Solve(ctx context.Context) ([][]int, error)
 }
 
-type Evaluator func([]*Vector, [][]int) []int
+type Evaluator func([][]int) []int
 
 // TotalDistance calculates the total distance in minutes for one route
 func TotalDistance(route []int, vectors []*Vector) float64 {

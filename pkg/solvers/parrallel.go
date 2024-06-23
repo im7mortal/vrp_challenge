@@ -8,13 +8,16 @@ import (
 )
 
 type parallel struct {
-	N       int
-	vectors []*Vector
+	N              int
+	vectors        []*Vector
+	evaluatorFuncs []Evaluator
 }
 
-func NewParallel(vectors []*Vector, estimatorFuncs []Evaluator, N int) Solver {
-
-	return &parallel{N: N, vectors: vectors}
+func NewParallel(vectors []*Vector, evaluatorFuncs []Evaluator, N int) Solver {
+	if len(evaluatorFuncs) == 0 {
+		evaluatorFuncs = []Evaluator{GetTheBestByLengthAndCost(vectors)}
+	}
+	return &parallel{N: N, vectors: vectors, evaluatorFuncs: evaluatorFuncs}
 }
 
 type jobResult struct {
@@ -43,7 +46,7 @@ func (pl *parallel) Solve(ctx context.Context) ([][]int, error) {
 			}
 
 			resultChan <- createJobFromFuncOut(slv.Solve(ctx))
-		}(NewNearestNeighborExp(pl.vectors, GetTheBestByLengthAndCost, i+1))
+		}(NewNearestNeighborExp(pl.vectors, pl.evaluatorFuncs[0], i+1))
 	}
 	var results []jobResult
 	finished := false

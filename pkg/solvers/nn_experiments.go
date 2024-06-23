@@ -107,7 +107,7 @@ func (nn *nearestNeighborExp) Solve(ctx context.Context) ([][]int, error) {
 	for {
 		results := nn.salesmanRecursion([]int{}, origin, 0.0)
 
-		route := nn.estimatorFunc(nn.vectors, results)
+		route := nn.estimatorFunc(results)
 
 		for _, index := range route {
 			nn.visited[index] = true
