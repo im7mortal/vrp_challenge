@@ -5,7 +5,7 @@ WORKDIR /build
 COPY go.mod .
 COPY go.sum .
 
-RUN go list -e $(go list -f '{{.Path}}' -m all)
+RUN #go list -e $(go list -f '{{.Path}}' -m all); exit 0
 
 COPY main.go .
 COPY pkg pkg
