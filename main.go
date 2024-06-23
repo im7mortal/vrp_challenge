@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"github.com/golang/glog"
 	"github.com/spf13/cobra"
@@ -10,15 +11,27 @@ import (
 	"vorto/vpr/pkg/solvers/utils"
 )
 
+const (
+	errorLvl = 1
+	debugLvl = 9
+)
+
+const (
+	mustExit      = 30 * time.Second
+	mustFinishAll = 28 * time.Second
+)
+
 // there is high probability that during development we stack in infinite loop
 // if we use all cores then it can parallelize UI; I have Ubuntu and it happened with me many times
 func init() {
-	time.AfterFunc(30*time.Second, func() {
+	time.AfterFunc(mustExit, func() {
+		err := fmt.Errorf("Time exceeded: took more then %d seconds", mustExit/time.Second)
+		if glog.V(errorLvl) {
+			glog.Exit(err)
+		}
 		os.Exit(1)
 	})
 }
-
-const debug = 9
 
 var rootCmd = &cobra.Command{
 	Use:   "solver [ARGUMENT]",
@@ -30,16 +43,28 @@ var rootCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		vectors, err := utils.Parse(os.Args[1])
 		if err != nil {
-			if glog.V(debug) {
+			if glog.V(errorLvl) {
 				glog.Exit(err)
 			}
 			os.Exit(1)
 		}
-		sol := solvers.NewNearestNeighborExp(vectors, 3)
-		printToFormat(sol.Solve())
+
+		ctx, _ := context.WithTimeout(context.Background(), mustFinishAll)
+		sol := solvers.NewParallel(vectors, 5)
+
+		result, err := sol.Solve(ctx)
+		if r := recover(); r != nil {
+			if glog.V(errorLvl) {
+				glog.Exitf("Recovered from panic:\n", r)
+			}
+			os.Exit(1)
+		}
+		printToFormat(result)
 	},
 }
 
+// python expects following format
+// [0,1,2]
 func printToFormat(results [][]int) {
 	for _, entrance := range results {
 		s := "["
@@ -57,14 +82,14 @@ func printToFormat(results [][]int) {
 func main() {
 	defer func() {
 		if r := recover(); r != nil {
-			if glog.V(debug) {
-				glog.Exitf("Recovered from", r)
+			if glog.V(errorLvl) {
+				glog.Exitf("Recovered from:", r)
 			}
 			os.Exit(1)
 		}
 	}()
 	if err := rootCmd.Execute(); err != nil {
-		if glog.V(debug) {
+		if glog.V(errorLvl) {
 			glog.Exit(err)
 		}
 		os.Exit(1)

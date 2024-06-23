@@ -8,14 +8,13 @@ import (
 )
 
 type parallel struct {
-	ctx     context.Context
 	N       int
 	vectors []*Vector
 }
 
-func NewParallel(ctx context.Context, vectors []*Vector, N int) Solver {
+func NewParallel(vectors []*Vector, N int) Solver {
 
-	return &parallel{N: N, ctx: ctx, vectors: vectors}
+	return &parallel{N: N, vectors: vectors}
 }
 
 type jobResult struct {
@@ -58,7 +57,7 @@ func (pl *parallel) Solve(ctx context.Context) ([][]int, error) {
 			if len(results) == pl.N {
 				finished = true
 			}
-		case <-pl.ctx.Done():
+		case <-ctx.Done():
 			finished = true
 		}
 	}
