@@ -1,9 +1,8 @@
 package solvers
 
 import (
-	"fmt"
-	"github.com/golang/glog"
 	"math"
+	"sort"
 )
 
 type nearestNeighborExp struct {
@@ -11,10 +10,11 @@ type nearestNeighborExp struct {
 	visited            []bool
 	precomputeToOrigin []float64
 	precomputeDistance []float64
+	N                  int
 }
 
-func NewNearestNeighborExp(vectors []Vector) Solver {
-	nn := &nearestNeighbor{}
+func NewNearestNeighborExp(vectors []Vector, N int) Solver {
+	nn := &nearestNeighborExp{N: N}
 	nn.precomputeToOrigin = make([]float64, len(vectors))
 	nn.precomputeDistance = make([]float64, len(vectors))
 	nn.visited = make([]bool, len(vectors))
@@ -27,52 +27,106 @@ func NewNearestNeighborExp(vectors []Vector) Solver {
 	return nn
 }
 
-func (nn *nearestNeighborExp) findNearestVector(current Point) (int, float64) {
-	nearestIndex := -1
-	minDistance := math.MaxFloat64
+type neighbour struct {
+	index    int
+	distance float64
+}
 
+type neighbours []neighbour
+
+func (n neighbours) Len() int { return len(n) }
+
+func (n neighbours) Less(i, j int) bool { return n[i].distance < n[j].distance }
+
+func (n neighbours) Swap(i, j int) { n[i], n[j] = n[j], n[i] }
+
+func exist(i []int, v int) bool {
+	for j := range i {
+		if i[j] == v {
+			return true
+		}
+	}
+	return false
+}
+
+func (nn *nearestNeighborExp) find_N_NearestVector(current Point, visitedByCurrentIteration []int) neighbours {
+	var ns neighbours
 	for i, v := range nn.vectors {
-		if !nn.visited[i] {
-			d := Distance(current, v.Start)
-			if d < minDistance {
-				minDistance = d
-				nearestIndex = i
+		if !exist(visitedByCurrentIteration, i) && !nn.visited[i] {
+			ns = append(ns, neighbour{
+				index:    i,
+				distance: Distance(current, v.Start), // TODO MUST BE MATRIX
+			})
+		}
+	}
+	sort.Sort(ns)
+	if len(ns) > nn.N {
+		return ns[:nn.N]
+	}
+	return ns
+}
+
+func (nn *nearestNeighborExp) salesmanRecursion(sequence []int, current Point, totalDistance float64) [][]int {
+
+	var result [][]int
+
+	nearestPoints := nn.find_N_NearestVector(current, sequence)
+
+	if len(nearestPoints) == 0 {
+		return [][]int{sequence}
+	}
+
+	for _, nearestPoint := range nearestPoints {
+
+		if totalDistance+nearestPoint.distance+nn.precomputeDistance[nearestPoint.index]+nn.precomputeToOrigin[nearestPoint.index] > RouteMaxShiftMinutes {
+			continue
+		}
+
+		var sequenceCopy []int
+		copy(sequenceCopy, sequence)
+		sequenceCopy = append(sequenceCopy, nearestPoint.index)
+
+		res := nn.salesmanRecursion(sequenceCopy, nn.vectors[nearestPoint.index].End, totalDistance+nearestPoint.distance+nn.precomputeDistance[nearestPoint.index])
+
+		result = append(result, res...)
+
+	}
+	return result
+
+}
+
+func (nn *nearestNeighborExp) getTheBestResult(results [][]int) []int {
+	l := 0
+
+	for _, r := range results {
+		if len(r) > l {
+			l = len(r)
+		}
+	}
+	var minCost = math.MaxFloat64
+	var out []int
+
+	for _, r := range results {
+		if len(r) == l {
+			t := TotalDistance(r, nn.vectors)
+			if t < minCost {
+				minCost = t
+				out = r
 			}
 		}
 	}
-	return nearestIndex, minDistance
+	return out
 }
 
 func (nn *nearestNeighborExp) Solve() (solution [][]int) {
 
 	for {
-		current := origin
-		var route []int
-		totalDistance := 0.0
+		results := nn.salesmanRecursion([]int{}, origin, 0.0)
 
-		for {
-			nearestIndex, distToNearest := nn.findNearestVector(current)
+		route := nn.getTheBestResult(results)
 
-			//if nearestIndex != -1 {
-			//	if glog.V(1) {
-			//		d := totalDistance + distToNearest + nn.precomputeDistance[nearestIndex] + nn.precomputeToOrigin[nearestIndex]
-			//		fmt.Printf("%.2f\t%.2f\t%t\t \n", d, d, d > RouteMaxShiftMinutes)
-			//	}
-			//}
-			if nearestIndex == -1 || totalDistance+distToNearest+nn.precomputeDistance[nearestIndex]+nn.precomputeToOrigin[nearestIndex] > RouteMaxShiftMinutes {
-				break
-			}
-
-			nearestVector := nn.vectors[nearestIndex]
-			totalDistance += distToNearest + nn.precomputeDistance[nearestIndex]
-
-			if glog.V(debugLvl) {
-				fmt.Printf("%.2f\t%.2f\t%.2f\t \n", distToNearest, nn.precomputeDistance[nearestIndex], totalDistance)
-			}
-
-			current = nearestVector.End
-			route = append(route, nearestIndex)
-			nn.visited[nearestIndex] = true
+		for _, index := range route {
+			nn.visited[index] = true
 		}
 
 		solution = append(solution, route)
