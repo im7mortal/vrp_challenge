@@ -20,7 +20,6 @@ WORKDIR /solver
 COPY problems problems
 COPY evaluateShared.py evaluateShared.py
 COPY --from=build /go/bin/vpr solver
-RUN ls
 
 CMD ["python3", "evaluateShared.py", "--cmd" , "/solver/solver", "--problemDir", "problems"]
 
