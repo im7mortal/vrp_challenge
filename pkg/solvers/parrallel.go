@@ -51,7 +51,8 @@ func (pl *parallel) Solve(ctx context.Context) ([][]int, error) {
 			close(chanN3Done)
 		})
 	}
-	go func() {
+	go func() { // TODO we have to block this till, firs magicKNOWHOW_N_number task is submitted
+		// TODO for now ok
 		innerCtx, _ := context.WithTimeout(ctx, magicKNOWHOWTimeout)
 		select {
 		case <-innerCtx.Done():
@@ -97,7 +98,9 @@ func (pl *parallel) Solve(ctx context.Context) ([][]int, error) {
 		}
 		select {
 		case job := <-resultChan:
-			results = append(results, job)
+			if job.err == nil {
+				results = append(results, job)
+			}
 			// TODO I don't like counter pattern
 			counter--
 			if counter == 0 {
@@ -113,7 +116,7 @@ func (pl *parallel) Solve(ctx context.Context) ([][]int, error) {
 			finished = true
 		}
 	}
-
+	close(resultChan)
 	var finalResult [][]int
 	var minimalCost = math.MaxFloat64
 

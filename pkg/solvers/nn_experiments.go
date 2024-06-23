@@ -105,6 +105,12 @@ func (nn *nearestNeighborExp) salesmanRecursion(sequence []int, current Point, t
 func (nn *nearestNeighborExp) Solve(ctx context.Context) ([][]int, error) {
 	var solution [][]int
 	for {
+
+		// computation was canceled
+		if ctx.Err() != nil {
+			return nil, ctx.Err()
+		}
+
 		results := nn.salesmanRecursion([]int{}, origin, 0.0)
 
 		route := nn.estimatorFunc(results)
