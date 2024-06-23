@@ -33,6 +33,9 @@ func init() {
 	})
 }
 
+// number of nerest neighbors to consider in bruteforce recursion salesman
+const N = 3
+
 var rootCmd = &cobra.Command{
 	Use:   "solver [ARGUMENT]",
 	Short: "VRP solver",
@@ -60,7 +63,7 @@ var rootCmd = &cobra.Command{
 		sol := solvers.NewParallel(vectors, []solvers.Evaluator{
 			solvers.GetTheBestByLengthAndCost(vectors),
 			solvers.GetTheBestByLengthAndRandom(rndFctr.GetRandomGenerator()),
-		}, 5)
+		}, N)
 
 		result, err := sol.Solve(ctx)
 		if r := recover(); r != nil {

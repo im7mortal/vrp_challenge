@@ -83,13 +83,22 @@ func TestSolver(t *testing.T) {
 }
 
 func TestSolverParallel(t *testing.T) {
-	vectors, err := utils.Parse("../../Training Problems/problem17.txt")
+	fn := "../../Training Problems/problem10.txt"
+	vectors, err := utils.Parse(fn)
 	if err != nil {
 		t.Errorf(err.Error())
 	}
+	rnd, err := utils.NewRandFactory(fn)
+	if err != nil {
+		t.Errorf("Error: %s", err)
+		return
+	}
 	ctx, _ := context.WithTimeout(context.Background(), time.Second*29)
-	var N = 2
-	nn := solvers.NewParallel(vectors, []solvers.Evaluator{solvers.GetTheBestByLengthAndCost(vectors)}, N)
+	var N = 5
+	nn := solvers.NewParallel(vectors, []solvers.Evaluator{
+		solvers.GetTheBestByLengthAndCost(vectors),
+		solvers.GetTheBestByLengthAndRandom(rnd.GetRandomGenerator()),
+	}, N)
 	routes, err := nn.Solve(ctx)
 	if err != nil {
 		t.Errorf("Error: %s", err)

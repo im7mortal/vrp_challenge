@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"github.com/golang/glog"
 	"math"
+	"sync"
+	"time"
 )
 
 type parallel struct {
@@ -33,7 +35,36 @@ func createJobFromFuncOut(result [][]int, err error) jobResult {
 	}
 }
 
+// it's not hardcode! it's KNOWHOW
+// visit "Algorithm" section in the README.md
+const magicKNOWHOWTimeout = time.Second
+const magicKNOWHOW_N_number = 3
+
 func (pl *parallel) Solve(ctx context.Context) ([][]int, error) {
+
+	// sloppy logic to ensure that we do not stack on cases which generate to deep recursion
+	ctx, cancel := context.WithCancel(ctx)
+	chanN3Done := make(chan jobResult)
+	var closeOnce sync.Once
+	passedCancelThreshold := func() {
+		closeOnce.Do(func() {
+			close(chanN3Done)
+		})
+	}
+	go func() {
+		innerCtx, _ := context.WithTimeout(ctx, magicKNOWHOWTimeout)
+		select {
+		case <-innerCtx.Done():
+			if glog.V(debugLvl) {
+				glog.Infof("Deep recursion detected; cancel calculations")
+			}
+			// let's do not wait on rest calculation; probably it's deep recursion
+			cancel()
+		case <-chanN3Done:
+			//disable cancel logic
+			return
+		}
+	}()
 
 	resultChan := make(chan jobResult)
 	counter := 0
@@ -71,6 +102,12 @@ func (pl *parallel) Solve(ctx context.Context) ([][]int, error) {
 			counter--
 			if counter == 0 {
 				finished = true
+			}
+			if job.index == magicKNOWHOW_N_number {
+				if glog.V(debugLvl) {
+					glog.Infof("Deep recursion detected; send signal to cancel calculations")
+				}
+				passedCancelThreshold()
 			}
 		case <-ctx.Done():
 			finished = true
