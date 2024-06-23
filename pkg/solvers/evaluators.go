@@ -33,24 +33,28 @@ func GetTheBestByLengthAndCost(vectors []*Vector) Evaluator {
 
 }
 
-func GetTheBestByLengthAndRandom(vectors []*Vector, results [][]int, rnd rand.Rand) []int {
-	l := 0
+func GetTheBestByLengthAndRandom(rnd *rand.Rand) Evaluator {
 
-	for _, r := range results {
-		if len(r) > l {
-			l = len(r)
+	return func(results [][]int) []int {
+		l := 0
 
+		for _, r := range results {
+			if len(r) > l {
+				l = len(r)
+
+			}
 		}
-	}
-	var filtered []int
-	for i, r := range results {
-		if len(r) == l {
-			filtered = append(filtered, i)
+		var filtered []int
+		for i, r := range results {
+			if len(r) == l {
+				filtered = append(filtered, i)
+			}
 		}
+
+		if len(filtered) == 1 {
+			return results[filtered[0]]
+		}
+		return results[filtered[int(rnd.Int64N(int64(len(filtered))))]]
 	}
 
-	if len(filtered) == 1 {
-		return results[filtered[0]]
-	}
-	return results[filtered[int(rnd.Int64N(int64(len(filtered))))]]
 }

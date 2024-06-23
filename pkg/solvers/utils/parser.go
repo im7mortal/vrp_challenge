@@ -1,9 +1,11 @@
 package utils
 
 import (
+	"crypto/sha256"
 	"encoding/csv"
 	"fmt"
 	"github.com/golang/glog"
+	"math/rand/v2"
 	"os"
 	"vorto/vpr/pkg/solvers"
 )
@@ -73,4 +75,33 @@ func Parse(filepath string) ([]*solvers.Vector, error) {
 		}
 	}
 	return vectors, nil
+}
+
+type RandomGeneratorFactory struct {
+	seed [32]byte
+}
+
+func (rg *RandomGeneratorFactory) GetRandomGenerator() *rand.Rand {
+	source := rand.NewChaCha8(rg.seed)
+	return rand.New(source)
+}
+
+func NewRandFactory(filename string) (*RandomGeneratorFactory, error) {
+	fileContent, err := os.ReadFile(filename)
+	if err != nil {
+		if glog.V(errorLvl) {
+			glog.Error(err)
+		}
+		return nil, err
+	}
+
+	hasher := sha256.New()
+	hasher.Write(fileContent)
+	var seed [32]byte
+	hashedFileContent := hasher.Sum(nil)
+	for i, b := range hashedFileContent {
+		seed[i] = b
+	}
+
+	return &RandomGeneratorFactory{seed: seed}, nil
 }

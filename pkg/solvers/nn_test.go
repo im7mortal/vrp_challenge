@@ -32,30 +32,30 @@ var targetBaseline = BaselinePetrFirstIteration
 // in this case I can exclude quickly test cases
 // for example problem5.txt and problem6.txt will stack with N salesman algorithm with N equal >2
 var files = []string{
-	"../../problems/problem1.txt",
-	"../../problems/problem2.txt",
-	"../../problems/problem3.txt",
-	"../../problems/problem4.txt",
-	"../../problems/problem5.txt",
-	"../../problems/problem6.txt",
-	"../../problems/problem7.txt",
-	"../../problems/problem8.txt",
-	"../../problems/problem9.txt",
-	"../../problems/problem10.txt",
-	"../../problems/problem11.txt",
-	"../../problems/problem12.txt",
-	"../../problems/problem13.txt",
-	"../../problems/problem14.txt",
-	"../../problems/problem15.txt",
-	"../../problems/problem16.txt",
-	"../../problems/problem17.txt",
-	"../../problems/problem18.txt",
-	"../../problems/problem19.txt",
-	"../../problems/problem20.txt",
+	"../../Training Problems/problem1.txt",
+	"../../Training Problems/problem2.txt",
+	"../../Training Problems/problem3.txt",
+	"../../Training Problems/problem4.txt",
+	"../../Training Problems/problem5.txt",
+	"../../Training Problems/problem6.txt",
+	"../../Training Problems/problem7.txt",
+	"../../Training Problems/problem8.txt",
+	"../../Training Problems/problem9.txt",
+	"../../Training Problems/problem10.txt",
+	"../../Training Problems/problem11.txt",
+	"../../Training Problems/problem12.txt",
+	"../../Training Problems/problem13.txt",
+	"../../Training Problems/problem14.txt",
+	"../../Training Problems/problem15.txt",
+	"../../Training Problems/problem16.txt",
+	"../../Training Problems/problem17.txt",
+	"../../Training Problems/problem18.txt",
+	"../../Training Problems/problem19.txt",
+	"../../Training Problems/problem20.txt",
 }
 
 func TestSolver(t *testing.T) {
-	vectors, err := utils.Parse("../../problems/problem17.txt")
+	vectors, err := utils.Parse("../../Training Problems/problem17.txt")
 	if err != nil {
 		t.Errorf(err.Error())
 	}
@@ -83,7 +83,7 @@ func TestSolver(t *testing.T) {
 }
 
 func TestSolverParallel(t *testing.T) {
-	vectors, err := utils.Parse("../../problems/problem17.txt")
+	vectors, err := utils.Parse("../../Training Problems/problem17.txt")
 	if err != nil {
 		t.Errorf(err.Error())
 	}
@@ -143,4 +143,27 @@ func TestAll(t *testing.T) {
 	mean := total / float64(len(values))
 	fmt.Println("Mean of values:", mean)
 
+}
+
+func TestGetRandom(t *testing.T) {
+	fn := "../../Training Problems/problem17.txt"
+	var checkRandom int
+	for i := 0; i < 10; i++ {
+
+		rnd, err := utils.NewRandFactory(fn)
+		if err != nil {
+			t.Errorf("Error: %s", err)
+			return
+		}
+		if i == 0 {
+			checkRandom = rnd.GetRandomGenerator().Int()
+		} else {
+			if v := rnd.GetRandomGenerator().Int(); checkRandom != v {
+				t.Errorf("Random generator doesn't generate consistent output: %d but must %d", v, checkRandom)
+				return
+			} else {
+				println(rnd.GetRandomGenerator().Int())
+			}
+		}
+	}
 }

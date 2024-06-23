@@ -48,10 +48,18 @@ var rootCmd = &cobra.Command{
 			}
 			os.Exit(1)
 		}
+		rndFctr, err := utils.NewRandFactory(os.Args[1])
+		if err != nil {
+			if glog.V(errorLvl) {
+				glog.Exit(err)
+			}
+			os.Exit(1)
+		}
 
 		ctx, _ := context.WithTimeout(context.Background(), mustFinishAll)
 		sol := solvers.NewParallel(vectors, []solvers.Evaluator{
 			solvers.GetTheBestByLengthAndCost(vectors),
+			solvers.GetTheBestByLengthAndRandom(rndFctr.GetRandomGenerator()),
 		}, 5)
 
 		result, err := sol.Solve(ctx)
