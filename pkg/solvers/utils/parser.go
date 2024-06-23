@@ -13,7 +13,7 @@ const (
 	debugLvl = 9
 )
 
-func Parse(filepath string) ([]solvers.Vector, error) {
+func Parse(filepath string) ([]*solvers.Vector, error) {
 	file, err := os.Open(filepath)
 	if err != nil {
 		if glog.V(errorLvl) {
@@ -43,7 +43,11 @@ func Parse(filepath string) ([]solvers.Vector, error) {
 	// remove header
 	values = values[1:]
 
-	vectors := make([]solvers.Vector, len(values))
+	vectors := make([]*solvers.Vector, len(values))
+	// init vectors as pointer can't be inited automatically
+	for i := range vectors {
+		vectors[i] = &solvers.Vector{}
+	}
 
 	for i := range values {
 		if len(values[i]) != 3 {

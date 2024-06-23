@@ -6,14 +6,14 @@ import (
 )
 
 type nearestNeighborExp struct {
-	vectors            []Vector
+	vectors            []*Vector
 	visited            []bool
 	precomputeToOrigin []float64
 	precomputeDistance []float64
 	N                  int
 }
 
-func NewNearestNeighborExp(vectors []Vector, N int) Solver {
+func NewNearestNeighborExp(vectors []*Vector, N int) Solver {
 	nn := &nearestNeighborExp{N: N}
 	nn.precomputeToOrigin = make([]float64, len(vectors))
 	nn.precomputeDistance = make([]float64, len(vectors))

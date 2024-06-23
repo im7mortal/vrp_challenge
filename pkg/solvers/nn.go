@@ -7,7 +7,7 @@ import (
 )
 
 type nearestNeighbor struct {
-	vectors            []Vector
+	vectors            []*Vector
 	visited            []bool
 	precomputeToOrigin []float64
 	precomputeDistance []float64
@@ -15,7 +15,7 @@ type nearestNeighbor struct {
 
 var origin = Point{0, 0}
 
-func NewNearestNeighbor(vectors []Vector) Solver {
+func NewNearestNeighbor(vectors []*Vector) Solver {
 	nn := &nearestNeighbor{}
 	nn.precomputeToOrigin = make([]float64, len(vectors))
 	nn.precomputeDistance = make([]float64, len(vectors))

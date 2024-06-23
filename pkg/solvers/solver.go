@@ -34,7 +34,7 @@ type Solver interface {
 }
 
 // TotalDistance calculates the total distance in minutes for one route
-func TotalDistance(route []int, vectors []Vector) float64 {
+func TotalDistance(route []int, vectors []*Vector) float64 {
 	localOrigin := origin
 	totalDistance := 0.
 	for _, index := range route {
@@ -60,7 +60,7 @@ func pythonStyleArrayPrint(i []int) string {
 }
 
 // Cost calculates the cost of the solution
-func Cost(routes [][]int, vectors []Vector) float64 {
+func Cost(routes [][]int, vectors []*Vector) float64 {
 	totalDistance := 0.
 	for _, route := range routes {
 
