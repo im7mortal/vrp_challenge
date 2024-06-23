@@ -2,6 +2,9 @@
 
 To run follow run sections. Algorith explained in the Algorith section.
 
+![Screenshot from 2024-06-23 14-35-39](https://github.com/im7mortal/vrp_challenge/assets/5336231/34afa20f-b16c-4305-bf3b-6c8ce62b91e1)
+
+
 ## Run
 
 The fastest way to run it. Is use [Dockerfile](Dockerfile). 
