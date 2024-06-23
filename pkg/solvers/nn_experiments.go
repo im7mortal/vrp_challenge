@@ -2,7 +2,6 @@ package solvers
 
 import (
 	"context"
-	"math"
 	"sort"
 )
 
@@ -12,10 +11,11 @@ type nearestNeighborExp struct {
 	precomputeToOrigin []float64
 	precomputeDistance []float64
 	N                  int
+	estimatorFunc      Evaluator
 }
 
-func NewNearestNeighborExp(vectors []*Vector, N int) Solver {
-	nn := &nearestNeighborExp{N: N}
+func NewNearestNeighborExp(vectors []*Vector, estimatorFunc Evaluator, N int) Solver {
+	nn := &nearestNeighborExp{N: N, estimatorFunc: estimatorFunc}
 	nn.precomputeToOrigin = make([]float64, len(vectors))
 	nn.precomputeDistance = make([]float64, len(vectors))
 	nn.visited = make([]bool, len(vectors))
@@ -102,36 +102,12 @@ func (nn *nearestNeighborExp) salesmanRecursion(sequence []int, current Point, t
 
 }
 
-func (nn *nearestNeighborExp) getTheBestResult(results [][]int) []int {
-	l := 0
-
-	for _, r := range results {
-		if len(r) > l {
-			l = len(r)
-		}
-	}
-	var minCost = math.MaxFloat64
-	var out []int
-
-	for _, r := range results {
-		if len(r) == l {
-			t := TotalDistance(r, nn.vectors)
-			if t < minCost {
-				minCost = t
-				out = r
-			}
-		}
-	}
-	//fmt.Printf("%v\n", out)
-	return out
-}
-
 func (nn *nearestNeighborExp) Solve(ctx context.Context) ([][]int, error) {
 	var solution [][]int
 	for {
 		results := nn.salesmanRecursion([]int{}, origin, 0.0)
 
-		route := nn.getTheBestResult(results)
+		route := nn.estimatorFunc(nn.vectors, results)
 
 		for _, index := range route {
 			nn.visited[index] = true

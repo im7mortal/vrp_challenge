@@ -12,7 +12,7 @@ type parallel struct {
 	vectors []*Vector
 }
 
-func NewParallel(vectors []*Vector, N int) Solver {
+func NewParallel(vectors []*Vector, estimatorFuncs []Evaluator, N int) Solver {
 
 	return &parallel{N: N, vectors: vectors}
 }
@@ -43,7 +43,7 @@ func (pl *parallel) Solve(ctx context.Context) ([][]int, error) {
 			}
 
 			resultChan <- createJobFromFuncOut(slv.Solve(ctx))
-		}(NewNearestNeighborExp(pl.vectors, i+1))
+		}(NewNearestNeighborExp(pl.vectors, GetTheBestByLengthAndCost, i+1))
 	}
 	var results []jobResult
 	finished := false

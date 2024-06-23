@@ -60,7 +60,7 @@ func TestSolver(t *testing.T) {
 		t.Errorf(err.Error())
 	}
 
-	nn := solvers.NewNearestNeighborExp(vectors, 5)
+	nn := solvers.NewNearestNeighborExp(vectors, solvers.GetTheBestByLengthAndCost, 5)
 	ctx, _ := context.WithTimeout(context.Background(), time.Second*29)
 	routes, err := nn.Solve(ctx)
 	if err != nil {
@@ -89,7 +89,7 @@ func TestSolverParallel(t *testing.T) {
 	}
 	ctx, _ := context.WithTimeout(context.Background(), time.Second*29)
 	var N = 2
-	nn := solvers.NewParallel(ctx, vectors, N)
+	nn := solvers.NewParallel(vectors, []solvers.Evaluator{solvers.GetTheBestByLengthAndCost}, N)
 	routes, err := nn.Solve(ctx)
 	if err != nil {
 		t.Errorf("Error: %s", err)
@@ -128,8 +128,8 @@ func TestAll(t *testing.T) {
 	var N = 5
 	var values []float64
 	for _, vectorss := range vectors {
-		nn := solvers.NewParallel(ctx, vectorss, N)
-		ctx, _ := context.WithTimeout(context.Background(), time.Second*29)
+		nn := solvers.NewParallel(vectorss, []solvers.Evaluator{solvers.GetTheBestByLengthAndCost}, N)
+		//ctx, _ := context.WithTimeout(context.Background(), time.Second*29)
 		result, err := nn.Solve(ctx)
 		if err != nil {
 			t.Errorf("Error: %s", err)
