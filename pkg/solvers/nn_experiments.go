@@ -71,20 +71,26 @@ func (nn *nearestNeighborExp) salesmanRecursion(sequence []int, current Point, t
 	var result [][]int
 
 	nearestPoints := nn.find_N_NearestVector(current, sequence)
-
 	if len(nearestPoints) == 0 {
 		return [][]int{sequence}
 	}
-
+	//println(len(nearestPoints))
+	appendedInCurrentIteration := false
 	for _, nearestPoint := range nearestPoints {
 
 		if totalDistance+nearestPoint.distance+nn.precomputeDistance[nearestPoint.index]+nn.precomputeToOrigin[nearestPoint.index] > RouteMaxShiftMinutes {
+			if !appendedInCurrentIteration {
+				result = append(result, sequence)
+				appendedInCurrentIteration = true
+			}
 			continue
 		}
 
-		var sequenceCopy []int
+		sequenceCopy := make([]int, len(sequence))
 		copy(sequenceCopy, sequence)
 		sequenceCopy = append(sequenceCopy, nearestPoint.index)
+		//fmt.Printf("res %v\n", sequenceCopy)
+		//time.Sleep(time.Second)
 
 		res := nn.salesmanRecursion(sequenceCopy, nn.vectors[nearestPoint.index].End, totalDistance+nearestPoint.distance+nn.precomputeDistance[nearestPoint.index])
 
@@ -115,6 +121,7 @@ func (nn *nearestNeighborExp) getTheBestResult(results [][]int) []int {
 			}
 		}
 	}
+	//fmt.Printf("%v\n", out)
 	return out
 }
 

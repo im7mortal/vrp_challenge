@@ -56,7 +56,7 @@ func TestSolver(t *testing.T) {
 		t.Errorf(err.Error())
 	}
 
-	nn := solvers.NewNearestNeighborExp(vectors, 1)
+	nn := solvers.NewNearestNeighborExp(vectors, 5)
 	routes := nn.Solve()
 
 	fmt.Printf("%v\n", routes)

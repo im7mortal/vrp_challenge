@@ -28,14 +28,14 @@ var rootCmd = &cobra.Command{
 	Args: cobra.MinimumNArgs(1),
 
 	Run: func(cmd *cobra.Command, args []string) {
-		points, err := utils.Parse(os.Args[1])
+		vectors, err := utils.Parse(os.Args[1])
 		if err != nil {
 			if glog.V(debug) {
 				glog.Exit(err)
 			}
 			os.Exit(1)
 		}
-		sol := solvers.NewNearestNeighbor(points)
+		sol := solvers.NewNearestNeighborExp(vectors, 3)
 		printToFormat(sol.Solve())
 	},
 }
