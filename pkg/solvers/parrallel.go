@@ -42,7 +42,7 @@ const magicKNOWHOW_N_number = 3
 
 func (pl *parallel) Solve(ctx context.Context) ([][]int, error) {
 
-	// sloppy logic to ensure that we do not stack on cases which generate to deep recursion
+	// clumsy(right here right now) logic to ensure that we do not stack on cases which generate to deep recursion
 	ctx, cancel := context.WithCancel(ctx)
 	chanN3Done := make(chan jobResult)
 	var closeOnce sync.Once
