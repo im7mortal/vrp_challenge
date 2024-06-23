@@ -51,7 +51,8 @@ var rootCmd = &cobra.Command{
 			}
 			os.Exit(1)
 		}
-		rndFctr, err := utils.NewRandFactory(os.Args[1])
+		// Random factory generates Rand instances which will produce the same random sequence for the problem
+		rndFactory, err := utils.NewRandFactory(os.Args[1])
 		if err != nil {
 			if glog.V(errorLvl) {
 				glog.Exit(err)
@@ -63,7 +64,7 @@ var rootCmd = &cobra.Command{
 		sol := solvers.NewParallel(vectors, []solvers.Evaluator{
 			solvers.GetTheBestByLengthAndCostMin(vectors),
 			solvers.GetTheBestByLengthAndCostMax(vectors),
-			solvers.GetTheBestByLengthAndRandom(rndFctr.GetRandomGenerator()),
+			solvers.GetTheBestByLengthAndRandom(rndFactory.GetRandomGenerator()),
 		}, N)
 
 		result, err := sol.Solve(ctx)
