@@ -1,0 +1,7 @@
+.idea
+*.docx
+*.xlsx
+.~lock.*
+evaluateShared.py
+evaluationReadMe.txt
+*/**/problems*.txt
