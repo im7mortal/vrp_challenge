@@ -28,6 +28,9 @@ const (
 
 var targetBaseline = BaselinePetrFirstIteration
 
+// I prefer to have test cases in list instead of dynamically parsing directory
+// in this case I can exclude quickly test cases
+// for example problem5.txt and problem6.txt will stack with N salesman algorithm with N equal >2
 var files = []string{
 	"../../problems/problem1.txt",
 	"../../problems/problem2.txt",
