@@ -1,6 +1,7 @@
 package solvers
 
 import (
+	"context"
 	"math"
 	"sort"
 )
@@ -125,8 +126,8 @@ func (nn *nearestNeighborExp) getTheBestResult(results [][]int) []int {
 	return out
 }
 
-func (nn *nearestNeighborExp) Solve() (solution [][]int) {
-
+func (nn *nearestNeighborExp) Solve(ctx context.Context) ([][]int, error) {
+	var solution [][]int
 	for {
 		results := nn.salesmanRecursion([]int{}, origin, 0.0)
 
@@ -151,5 +152,5 @@ func (nn *nearestNeighborExp) Solve() (solution [][]int) {
 		}
 	}
 
-	return solution
+	return solution, nil
 }

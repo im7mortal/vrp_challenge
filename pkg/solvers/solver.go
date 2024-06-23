@@ -1,6 +1,7 @@
 package solvers
 
 import (
+	"context"
 	"fmt"
 	"math"
 )
@@ -30,7 +31,7 @@ func Distance(p1, p2 Point) float64 {
 }
 
 type Solver interface {
-	Solve() [][]int
+	Solve(ctx context.Context) ([][]int, error)
 }
 
 // TotalDistance calculates the total distance in minutes for one route
@@ -47,6 +48,7 @@ func TotalDistance(route []int, vectors []*Vector) float64 {
 
 }
 
+// for debug purposes; exactly matching with python
 func pythonStyleArrayPrint(i []int) string {
 	ss := "["
 	for g, d := range i {

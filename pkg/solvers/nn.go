@@ -1,6 +1,7 @@
 package solvers
 
 import (
+	"context"
 	"fmt"
 	"github.com/golang/glog"
 	"math"
@@ -44,8 +45,8 @@ func (nn *nearestNeighbor) findNearestVector(current Point) (int, float64) {
 	return nearestIndex, minDistance
 }
 
-func (nn *nearestNeighbor) Solve() (solution [][]int) {
-
+func (nn *nearestNeighbor) Solve(ctx context.Context) ([][]int, error) {
+	var solution [][]int
 	for {
 		current := origin
 		var route []int
@@ -91,5 +92,5 @@ func (nn *nearestNeighbor) Solve() (solution [][]int) {
 		}
 	}
 
-	return solution
+	return solution, nil
 }

@@ -1,6 +1,7 @@
 package solvers_test
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"testing"
@@ -10,7 +11,7 @@ import (
 )
 
 func init() {
-	// there is high probability that during development we stack in infinite loop
+	// there is high probability that during development we stack in infinite loop on all cores
 	// if we use all cores then it can parallelize UI; I have Ubuntu and it happened with me many times
 	time.AfterFunc(30*time.Second, func() {
 		os.Exit(0)
@@ -57,7 +58,11 @@ func TestSolver(t *testing.T) {
 	}
 
 	nn := solvers.NewNearestNeighborExp(vectors, 5)
-	routes := nn.Solve()
+	ctx, _ := context.WithTimeout(context.Background(), time.Second*29)
+	routes, err := nn.Solve(ctx)
+	if err != nil {
+		t.Errorf("Error: %s", err)
+	}
 
 	fmt.Printf("%v\n", routes)
 
@@ -74,8 +79,36 @@ func TestSolver(t *testing.T) {
 	}
 }
 
-func getVectors(t *testing.T) [][]solvers.Vector {
-	vectors := [][]solvers.Vector{}
+func TestSolverParallel(t *testing.T) {
+	vectors, err := utils.Parse("../../problems/problem17.txt")
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+	ctx, _ := context.WithTimeout(context.Background(), time.Second*29)
+	var N = 2
+	nn := solvers.NewParallel(ctx, vectors, N)
+	routes, err := nn.Solve(ctx)
+	if err != nil {
+		t.Errorf("Error: %s", err)
+	}
+
+	fmt.Printf("%v\n", routes)
+
+	for _, route := range routes {
+		if d := solvers.TotalDistance(route, vectors); d > solvers.RouteMaxShiftMinutes {
+			t.Errorf("Route %v exceed 12 hours shift with duration %f", route, d)
+		}
+	}
+
+	if cost := solvers.Cost(routes, vectors); cost > targetBaseline {
+		t.Errorf("Target cost %f was exced %f", targetBaseline, cost)
+	} else {
+		fmt.Printf("Target cost %f was %f\n", targetBaseline, cost)
+	}
+}
+
+func getVectors(t *testing.T) [][]*solvers.Vector {
+	vectors := [][]*solvers.Vector{}
 	for _, f := range files {
 		v, err := utils.Parse(f)
 		if err != nil {
@@ -88,10 +121,17 @@ func getVectors(t *testing.T) [][]solvers.Vector {
 
 func TestAll(t *testing.T) {
 	vectors := getVectors(t)
-	values := []float64{}
+	ctx, _ := context.WithTimeout(context.Background(), time.Second*29)
+	var N = 5
+	var values []float64
 	for _, vectorss := range vectors {
-		nn := solvers.NewNearestNeighbor(vectorss)
-		values = append(values, solvers.Cost(nn.Solve(), vectorss))
+		nn := solvers.NewParallel(ctx, vectorss, N)
+		ctx, _ := context.WithTimeout(context.Background(), time.Second*29)
+		result, err := nn.Solve(ctx)
+		if err != nil {
+			t.Errorf("Error: %s", err)
+		}
+		values = append(values, solvers.Cost(result, vectorss))
 	}
 	total := 0.0
 	for _, value := range values {
