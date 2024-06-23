@@ -17,7 +17,7 @@ type parallel struct {
 
 func NewParallel(vectors []*Vector, evaluatorFuncs []Evaluator, N int) Solver {
 	if len(evaluatorFuncs) == 0 {
-		evaluatorFuncs = []Evaluator{GetTheBestByLengthAndCost(vectors)}
+		evaluatorFuncs = []Evaluator{GetTheBestByLengthAndCostMax(vectors)}
 	}
 	return &parallel{N: N, vectors: vectors, evaluatorFuncs: evaluatorFuncs}
 }
@@ -37,7 +37,7 @@ func createJobFromFuncOut(result [][]int, err error) jobResult {
 
 // it's not hardcode! it's KNOWHOW
 // visit "Algorithm" section in the README.md
-const magicKNOWHOWTimeout = time.Second
+const magicKNOWHOWTimeout = 5 * time.Second
 const magicKNOWHOW_N_number = 3
 
 func (pl *parallel) Solve(ctx context.Context) ([][]int, error) {

@@ -13,3 +13,8 @@ mean run time: 5956.963813304901ms
 ### N=3 with n=3 timeout
 mean cost: 49382.49472953037
 mean run time: 239.01128768920898ms
+
+### add max evaluator
+mean cost: 48341.15786902501
+mean run time: 673.6149191856384ms
+

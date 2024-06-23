@@ -61,7 +61,8 @@ var rootCmd = &cobra.Command{
 
 		ctx, _ := context.WithTimeout(context.Background(), mustFinishAll)
 		sol := solvers.NewParallel(vectors, []solvers.Evaluator{
-			solvers.GetTheBestByLengthAndCost(vectors),
+			solvers.GetTheBestByLengthAndCostMin(vectors),
+			solvers.GetTheBestByLengthAndCostMax(vectors),
 			solvers.GetTheBestByLengthAndRandom(rndFctr.GetRandomGenerator()),
 		}, N)
 

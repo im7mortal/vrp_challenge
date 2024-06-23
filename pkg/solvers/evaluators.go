@@ -5,7 +5,7 @@ import (
 	"math/rand/v2"
 )
 
-func GetTheBestByLengthAndCost(vectors []*Vector) Evaluator {
+func GetTheBestByLengthAndCostMin(vectors []*Vector) Evaluator {
 
 	return func(results [][]int) []int {
 		l := 0
@@ -23,6 +23,33 @@ func GetTheBestByLengthAndCost(vectors []*Vector) Evaluator {
 				t := TotalDistance(r, vectors)
 				if t < minCost {
 					minCost = t
+					out = r
+				}
+			}
+		}
+		//fmt.Printf("%v\n", out)
+		return out
+	}
+
+}
+func GetTheBestByLengthAndCostMax(vectors []*Vector) Evaluator {
+
+	return func(results [][]int) []int {
+		l := 0
+
+		for _, r := range results {
+			if len(r) > l {
+				l = len(r)
+			}
+		}
+		var maxCost = 0.
+		var out []int
+
+		for _, r := range results {
+			if len(r) == l {
+				t := TotalDistance(r, vectors)
+				if t > maxCost {
+					maxCost = t
 					out = r
 				}
 			}
