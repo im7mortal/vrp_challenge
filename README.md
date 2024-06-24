@@ -39,7 +39,17 @@ This resulted in a slight improvement in the mean cost, down to 49508.5115932924
 
 So I decided to apply following KNOWHOW : If the algorithm's execution exceeded 1 second for N=3 (branching), the best result from N=1,2 would be selected instead. 
 
-Currently, further improvements are being pursued through experimentation with the Random Evaluation function.
+Later I applied different evaluators functions.
+
+### Evaluators
+
+After we have a list of possible routes we start evaluate them. 
+
+1. GetTheBestByLengthAndCostMin - we filter the longest routes and choose route with minimal cost
+2. GetTheBestByLengthAndCostMax - we filter the longest routes and choose route with maximum cost
+3. GetTheBestByLengthAndRandom - we filter the longest routes and then choose random one from it. To ensure determinacy,
+    [I seed the random generator with content of source file. For every iteration we recreate a random generator so it always give the same random sequence.](https://github.com/im7mortal/vrp_challenge/blob/main/pkg/solvers/utils/parser.go#L81-L108). I use CHACHA8 fast random generator which was added in rand/v2 go22.
+
 
 See [performance](PERFORMANCE_LOG.md) for details.
 ```
@@ -47,6 +57,8 @@ See [performance](PERFORMANCE_LOG.md) for details.
 // 2 49628.99589848467
 // 3 49324.77775315616
 ...
+
+// 48341.15786902501  <-- run N = 1, 2, 3 with Min, Max, Random evaluators 
 ```
 
 ## Code
