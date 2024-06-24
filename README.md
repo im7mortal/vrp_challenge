@@ -48,7 +48,7 @@ After we have a list of possible routes we start evaluate them.
 1. GetTheBestByLengthAndCostMin - we filter the longest routes and choose route with minimal cost
 2. GetTheBestByLengthAndCostMax - we filter the longest routes and choose route with maximum cost
 3. GetTheBestByLengthAndRandom - we filter the longest routes and then choose random one from it. To ensure determinacy,
-    [I seed the random generator with content of source file. For every iteration we recreate a random generator so it always give the same random sequence.](https://github.com/im7mortal/vrp_challenge/blob/main/pkg/solvers/utils/parser.go#L81-L108). I use CHACHA8 fast random generator which was added in rand/v2 go22.
+    [I seed the random generator with content of source file. For every iteration we recreate a random generator so it always give the same random sequence.](https://github.com/im7mortal/vrp_challenge/blob/69840eca370154a4a7193e7dd64c5bf74922b6c4/pkg/solvers/utils/parser.go#L81-L108). I use CHACHA8 fast random generator which was added in rand/v2 go22.
 
 
 See [performance](PERFORMANCE_LOG.md) for details.
@@ -65,6 +65,9 @@ See [performance](PERFORMANCE_LOG.md) for details.
 
 I am trying to demonstrate proficiency in GoLang and in general programming.
 
-Most golish part is this [clumsy code](https://github.com/im7mortal/vrp_challenge/blob/0f8ef3a515d5668c157e8b1731f31d6a844bd8bc/pkg/solvers/parrallel.go#L45-L119). As I mentioned in the Algorithm part. Some test cases can proceed for less than 1ms with N=1 and 150 seconds for N=3.
-    We start all tasks in the same time in different gorutines. I decided do not implement process limiter as it's 9 gorutines maximum for current implementation and 3 of them finish almost immediately.
-    What matters , it's to intercept the test cases significant amount of time and cancel them immediately. Following logic handle it.
+Most golish part is this [clumsy code](https://github.com/im7mortal/vrp_challenge/blob/0f8ef3a515d5668c157e8b1731f31d6a844bd8bc/pkg/solvers/parrallel.go#L45-L119). In the Algorithm section, I noted that some test cases take less than 1ms with N=1 and up to 150 seconds with N=3.
+    We start all tasks at the same time in different goroutines. I chose not to add a process limiter as the current implementation only uses up to 9[^1] goroutines at most, with 3 of them finishing almost instantly.
+    The important thing is to catch test cases that may take a lot of time and stop them right away. The mentioned logic handle it.
+
+
+[^1]: Actually 7. I fixed it [here](https://github.com/im7mortal/vrp_challenge/commit/f07aaae7d02e4f3fe63062d9bff7070842e36c78)
