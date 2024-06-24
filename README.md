@@ -65,7 +65,7 @@ See [performance](PERFORMANCE_LOG.md) for details.
 
 I am trying to demonstrate proficiency in GoLang and in general programming.
 
-Most golish part is this [clumsy code](https://github.com/im7mortal/vrp_challenge/blob/0f8ef3a515d5668c157e8b1731f31d6a844bd8bc/pkg/solvers/parrallel.go#L45-L119). In the Algorithm section, I noted that some test cases take less than 1ms with N=1 and up to 150 seconds with N=3.
+Most golish part is this [clumsy code](https://github.com/im7mortal/vrp_challenge/blob/0f8ef3a515d5668c157e8b1731f31d6a844bd8bc/pkg/solvers/parrallel.go#L45-L119). As I explained in the Algorithm section, I noted that some test cases take less than 1ms with N=1 and up to 150 seconds with N=3.
     We start all tasks at the same time in different goroutines. I chose not to add a process limiter as the current implementation only uses up to 9[^1] goroutines at most, with 3 of them finishing almost instantly.
     The important thing is to catch test cases that may take a lot of time and stop them right away. The mentioned logic handle it.
 
