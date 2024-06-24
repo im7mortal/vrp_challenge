@@ -88,6 +88,9 @@ func (pl *parallel) Solve(ctx context.Context) ([][]int, error) {
 				resultChan <- j
 			}(i+1, funcIndex)
 			counter++
+			if i == 0 {
+				break // we don't need evaluation funcs for N = 1; it's nearest neighbor
+			}
 		}
 	}
 	var results []jobResult
